@@ -1,61 +1,68 @@
 import React, { Component } from 'react';
 
 class ImageUpload extends Component {
-    constructor(props) {
-      super(props);
-      this.state = {
-        filesArr: [
-            {
-                file: null,
-                url: ''
-            }
-        ]
-      };
-      this._handleImageChange = this._handleImageChange.bind(this);
-      this._handleSubmit = this._handleSubmit.bind(this);
-    }
-  
-    _handleSubmit(e) {
-      e.preventDefault();
-      // TODO: do something with -> this.state.file
-    }
-  
-    _handleImageChange(e) {
-      e.preventDefault();
-      let files = e.target.files;
-      let filesArr = [];
-      for (let i = 0; i < files.length; i++) {
-          let fileItem = {
-            file: files[i],
-            url: URL.createObjectURL(e.target.files[i])
-          };
-          filesArr.push(fileItem);
-      }  
-      this.setState({
-        filesArr
-      });
+	constructor(props) {
+		super(props);
+		this.state = {
+			listPreviewFiles: []
+		};
+	}
 
+	addImage = (e) => {
+		e.preventDefault();
+        const files = e.target.files;
+        let { listPreviewFiles } = this.state;
+        console.log(files);
+		Object.keys(files).map((value, key) => {
+			var temp = { file: e.target.files[key], path: URL.createObjectURL(e.target.files[key]) };
+			listPreviewFiles.push(temp);
+		});
+
+		this.setState({
+			listPreviewFiles
+		});
+	}
+
+	removeImage = (e, value) => {
+		e.preventDefault();
+		let { listPreviewFiles } = this.state;
+        listPreviewFiles = listPreviewFiles.filter(x => x.path !== value.path);
+		this.setState({
+			listPreviewFiles
+		});
     }
-  
-    render() {
-      let {filesArr} = this.state;
-      const showImgs = () => {
-        return filesArr.map((value, key) => {
-            return <img src={value.url} key={key} width="200px"/>
-        });
-      }
-  
-      return (
-        <div>
-          <form onSubmit={this._handleSubmit}>
-            <input type="file" onChange={this._handleImageChange} multiple/>
-            {/* <button type="submit" onClick={this._handleSubmit}>Upload Image</button> */}
-          </form>
-          {showImgs()}
-        </div>
-      )
+    
+    onSubmit = (e) => {
+        e.preventDefault();
+        const { listPreviewFiles } = this.state;
+        let input = {};
+        for (let i = 0; i < listPreviewFiles.length; i++) {
+            let { file } = listPreviewFiles[i];
+            input[i] = file;
+        }
+        console.log(input);
     }
-  
-  }
-  
-  export default ImageUpload;
+
+	render() {
+
+		let { listPreviewFiles } = this.state;
+		const showImgs = () => {
+			return listPreviewFiles.map((value, key) => {
+				return <img onClick={(e) => this.removeImage(e, value)} src={value.path} key={key} width="200px" />
+			});
+		}
+
+		return (
+			<div>
+				<form onSubmit={this._handleSubmit}>
+					<input type="file" onChange={(e) => this.addImage(e)} multiple />
+					<button type="submit" onClick={(e) => this.onSubmit(e)}>Upload Image</button>
+				</form>
+				{showImgs()}
+			</div>
+		)
+	}
+
+}
+
+export default ImageUpload;
