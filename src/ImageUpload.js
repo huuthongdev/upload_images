@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { RequestService } from './utils/request-service';
 
 class ImageUpload extends Component {
 	constructor(props) {
@@ -10,9 +11,8 @@ class ImageUpload extends Component {
 
 	addImage = (e) => {
 		e.preventDefault();
-        const files = e.target.files;
+		const files = e.target.files;
         let { listPreviewFiles } = this.state;
-        console.log(files);
 		Object.keys(files).map((value, key) => {
 			var temp = { file: e.target.files[key], path: URL.createObjectURL(e.target.files[key]) };
 			listPreviewFiles.push(temp);
@@ -32,15 +32,21 @@ class ImageUpload extends Component {
 		});
     }
     
-    onSubmit = (e) => {
+    async onSubmit(e) {
         e.preventDefault();
-        const { listPreviewFiles } = this.state;
-        let input = {};
+		const { listPreviewFiles } = this.state;
+		var formData = new FormData();
         for (let i = 0; i < listPreviewFiles.length; i++) {
-            let { file } = listPreviewFiles[i];
-            input[i] = file;
-        }
-        console.log(input);
+			formData.append('files', listPreviewFiles[i].file, listPreviewFiles[i].file.name);
+		}
+				
+		await RequestService.uploadFiles(formData)
+		.then(result => {
+			this.setState({
+				listPreviewFiles: []
+			})	
+		})
+		.catch(error => console.log(error));
     }
 
 	render() {
