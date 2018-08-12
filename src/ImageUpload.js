@@ -17,7 +17,6 @@ class ImageUpload extends Component {
 			var temp = { file: e.target.files[key], path: URL.createObjectURL(e.target.files[key]) };
 			listPreviewFiles.push(temp);
 		});
-
 		this.setState({
 			listPreviewFiles
 		});
@@ -35,17 +34,16 @@ class ImageUpload extends Component {
     async onSubmit(e) {
         e.preventDefault();
 		const { listPreviewFiles } = this.state;
+
+		// Create new Form Data
 		var formData = new FormData();
         for (let i = 0; i < listPreviewFiles.length; i++) {
 			formData.append('files', listPreviewFiles[i].file, listPreviewFiles[i].file.name);
-		}
-				
+		}	
+
+		// Request Upload
 		await RequestService.uploadFiles(formData)
-		.then(result => {
-			this.setState({
-				listPreviewFiles: []
-			})	
-		})
+		.then(() => { this.setState({ listPreviewFiles: [] })})
 		.catch(error => console.log(error));
     }
 
